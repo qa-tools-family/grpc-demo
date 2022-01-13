@@ -1,6 +1,9 @@
 package data
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 type PhoneType int32
 
@@ -19,10 +22,19 @@ type Person struct {
 	Name string
 	Id int
 	Email string
-	Phones []*PhoneNumber
-	last_updated *time.Time
+	Phones []PhoneNumber
+	LastUpdated time.Time
 }
 
 type AddressBook struct {
-	People []*Person
+	People []Person
+}
+
+func (a AddressBook) String() string {
+	message, err := json.Marshal(a.People)
+	if err != nil {
+		return "err"
+	} else {
+		return string(message)
+	}
 }

@@ -5,15 +5,18 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/golang/protobuf/jsonpb"
-	"github.com/golang/protobuf/ptypes/timestamp"
+	"github.com/jinzhu/copier"
+	"github.com/qa-tools-family/grpc-demo/data-transform/data"
 	"github.com/qa-tools-family/grpc-demo/data-transform/pb"
+	logger "github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"time"
 )
 
 
 func pb2jsonBase()  {
 
-	var timeProto *timestamp.Timestamp
+	var timeProto *timestamppb.Timestamp
 	timeProto = timestamppb.Now()
 
 	person := pb.Person{
@@ -85,7 +88,46 @@ func pb2jsonPb() {
 	}
 }
 
+func data2pb() {
+	address := data.AddressBook{People: []data.Person{
+		{
+			Name:   "missshi",
+			Id:     0,
+			Email:  "wangzhe0912@tju.edu.cn",
+			Phones: nil,
+			LastUpdated: time.Now(),
+		},
+		{
+			Name:   "missshi",
+			Id:     20,
+			Email:  "",
+			Phones: []data.PhoneNumber{
+				{
+					Number: "152xxxx0001",
+					Type: 1,
+				},
+			},
+		},
+	}}
+	logger.Info(address)
+	var pbAddress pb.AddressBook
+	//_ = copier.Copy(&pbAddress, &address)
+	_ = copier.CopyWithOption(&pbAddress, &address, copier.Option{
+		IgnoreEmpty: false,
+		DeepCopy:    false,
+	})
+	logger.Info(&pbAddress)
+
+	var newAddress data.AddressBook
+	_ = copier.CopyWithOption(&newAddress, &pbAddress, copier.Option{
+		IgnoreEmpty: false,
+		DeepCopy:    false,
+	})
+	logger.Info(&newAddress)
+}
+
 func main() {
-	pb2jsonBase()
-	pb2jsonPb()
+	//pb2jsonBase()
+	//pb2jsonPb()
+	data2pb()
 }
